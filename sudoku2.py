@@ -1,4 +1,5 @@
 import itertools
+from itertools import product
 import time
 from tqdm import tqdm
 
@@ -38,94 +39,59 @@ sudoku = [
   [0,0,3,5,8,0,1,0,0],
 ]
 
-def leftShiftIndex(arr, n): #配列arrをn個左にずらした配列を返す
-   result = arr[n:] + arr[:n]
-   return result
-
-# sudoku[1] = leftShiftIndex(sudoku[1], 3)
-# sudoku[2] = leftShiftIndex(sudoku[2], 6)
-# sudoku[3] = leftShiftIndex(sudoku[3], 1)
-# sudoku[4] = leftShiftIndex(sudoku[4], 4)
-# sudoku[5] = leftShiftIndex(sudoku[5], 7)
-# sudoku[6] = leftShiftIndex(sudoku[6], 2)
-# sudoku[7] = leftShiftIndex(sudoku[7], 5)
-# sudoku[8] = leftShiftIndex(sudoku[8], 8)
-#正答例
-
-print(sudoku)
-
-
-number_not_included = [] #含まれていない数字を二次元配列で格納
-number_not_included_all = [] #含まれていない数字の総当たりを格納
-
-
-num = [1,2,3,4,5,6,7,8,9]
-
-for column in sudoku: #行に含まれていない数字を探す
-  if num != [1,2,3,4,5,6,7,8,9]:
-    num = [1,2,3,4,5,6,7,8,9]
-  for row in column:
-    if row != 0:
-      # print(num,row)
-      num.remove(row)
-  number_not_included.append(num)
-  number_not_included_all.append(list(itertools.permutations(num)))
-
-
 
 def solve():
-
-  def challenge(temporary_list):
-    for i in range(9):
-      num = 0
-      for j in range(9):
-        if sudoku[i][j] == 0:
-          sudoku[i][j] = temporary_list[num]
-          num += 1
-
-    if check_row(sudoku):
-      if check_box(sudoku):
-        return sudoku
-      else:
-        return True
-    else:
-      return True
+  no_use_all = []
+  for i in range(9):
+    for j in range(9):
+      if sudoku[i][j] == 0:
+        no_use = find_no_use_num(i, j)
+        no_use_all.append(no_use)
+  print(no_use_all)
+  # a = 1
+  # for n in no_use_all:
+  #   a *= len(n)
+  # print(a)
+  combination = [*map(list, product(*no_use_all))]#ここの計算量膨大
+  print(len(combination))
+  
 
 
 
+def find_no_use_num(row, column):
+  num = [1,2,3,4,5,6,7,8,9]
+  for r in sudoku[row]:
+    if r in num:
+      num.remove(r)
+  for s in sudoku:
+      if s[column] in num:
+        num.remove(s[column])
+  if (row+1) % 3 == 0:
+    row1, row2 = row-1, row-2
+  elif (row+1) % 3 == 2:
+    row1, row2 = row-1, row+1
+  else:
+    row1, row2 = row+1, row+2
 
-  temporary_list = []
-  finish_count = 1
-  count = 0
-  for n in number_not_included_all:
-    finish_count *= len(n)
-  for n1 in number_not_included_all[0]:
-    time.sleep(1)
-    for n2 in number_not_included_all[1]:
-      for n3 in number_not_included_all[2]:
-        for n4 in number_not_included_all[3]:
-          for n5 in number_not_included_all[4]:
-            for n6 in number_not_included_all[5]:
-              for n7 in number_not_included_all[6]:
-                for n8 in number_not_included_all[7]:
-                  for n9 in number_not_included_all[8]:
-                    temporary_list = n1 + n2 + n3 + n4 + n5 + n6 + n7 + n8 + n9
-                    temporary_list = list(temporary_list)
-                    if challenge(temporary_list):
-                      temporary_list.clear()
-                      count += 1
-                    else:
-                      for str in challenge(temporary_list):
-                        print("\n", str)
-                print(count,"/", finish_count)
-              print("n7",count,"/", finish_count)
-            print("n6")
-          print("n5")
-        print("n4")
-      print("n3")
-    print("n2")
-  print("n1")
+  if (column+1) % 3 == 0:
+    column1, column2 = column-1, column-2
+  elif (column+1) % 3 == 2:
+    column1, column2 = column-1, column+1
+  else:
+    column1, column2 = column+1, column+2
 
+  # print(row, row1, row2, column,column1, column2)
+
+  if sudoku[row1][column1] in num:
+    num.remove(sudoku[row1][column1])
+  if sudoku[row1][column2] in num:
+    num.remove(sudoku[row1][column2])
+  if sudoku[row2][column1] in num:
+    num.remove(sudoku[row2][column1])
+  if sudoku[row2][column2] in num:
+    num.remove(sudoku[row2][column2])
+
+  return num
 
 
 
